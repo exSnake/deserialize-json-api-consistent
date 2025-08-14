@@ -85,10 +85,8 @@ const deserializeResource = (
             transformFunc
           );
         }
-      } else {
-        // Neither meta nor data -> empty array for to-many relationships
-        deserialized[transformedKey] = [];
       }
+      // If no data and no meta, don't create the relationship property at all
       return;
     }
     if (!relationship) return;

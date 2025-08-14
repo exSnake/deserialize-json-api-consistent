@@ -18,11 +18,12 @@ yarn add deserialize-json-api-consistent
 
 ## Compatibility
 
-This fork maintains full compatibility with the original `weillandia/deserialize-json-api` package while adding enhanced relationship meta handling.
+This fork maintains **full compatibility** with the original `weillandia/deserialize-json-api` package while adding enhanced relationship meta handling.
 
 - Relationships maintain their original structure (flat objects, not wrapped)
 - Resource-level fields remain "flat" (`id`, `type`, attributes, `links`, `meta`)
-- Enhanced meta handling for relationships without data
+- Relationships without data, meta, or links are not created (original behavior)
+- Enhanced meta handling for relationships with only meta (no data)
 
 ### Relationship meta handling
 
@@ -43,7 +44,9 @@ When a relationship has only `meta` (no `data`), the meta is moved to `meta.rela
 }
 ```
 
-This preserves relationship metadata while maintaining a clean data structure.
+When a relationship has no `data`, no `meta`, and no `links`, it is not created at all (maintaining original package behavior).
+
+This preserves relationship metadata while maintaining full compatibility with the original package.
 
 ## Usage
 
@@ -187,8 +190,8 @@ deserializedData == {
 
 - to-many with no data, links, or meta:
 ```json
-// Relationship is not created (empty array)
-"actors": []
+// Relationship is not created at all
+// No "actors" property in the result
 ```
 ```
 

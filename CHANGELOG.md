@@ -10,12 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - 🐛 Move relationship meta to `meta.relationships.nomeRelazione` when no data present
 - 🐛 Fix relationship handling when no data, links, or meta are provided
-- 🐛 Preserve relationship meta in wrapper when data is present
+- 🐛 Preserve relationship meta in original location when data is present
+- 🐛 Don't create relationship properties when no data, meta, or links are provided
 
 ### Changed
 - 💡 Improve relationship meta handling logic
-- 💡 Update test cases to reflect new behavior
-- 💡 Revert compatibility with old version
+- 💡 Update test cases to reflect original package behavior
+- 💡 Restore full compatibility with original weillandia/deserialize-json-api
 
 ## [3.0.2] - 2025-08-14
 

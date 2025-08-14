@@ -417,7 +417,6 @@ const expectedNoMetaNoData = {
     id: "90",
     denominazione: "STAZIONE DI SERVIZIO API",
     links: { self: "http://localhost:771/api/v1/locations/90" },
-    slots: [],
   },
 };
 
@@ -450,7 +449,6 @@ const expectedToOneNoDataLinks = {
   data: {
     type: "movies",
     id: "1",
-    director: [],
   },
 };
 
@@ -466,7 +464,6 @@ const expectedToManyNoDataLinks = {
   data: {
     type: "movies",
     id: "1",
-    actors: [],
   },
 };
 
@@ -513,7 +510,7 @@ describe("deserialize", () => {
     deepStrictEqual(result, expectedMetaOnly);
   });
 
-  it("should return empty array when relationship has neither meta nor data (to-many)", () => {
+  it("should not create relationship when neither meta nor data (to-many)", () => {
     const result = deserialize(respNoMetaNoData);
     deepStrictEqual(result, expectedNoMetaNoData);
   });
@@ -523,12 +520,12 @@ describe("deserialize", () => {
     deepStrictEqual(result, expectedToOne);
   });
 
-  it("should wrap to-one relationship with links-only and no data as data: null", () => {
+  it("should not create to-one relationship with links-only and no data", () => {
     const result = deserialize(respToOneNoDataLinks);
     deepStrictEqual(result, expectedToOneNoDataLinks);
   });
 
-  it("should wrap to-many relationship with links-only and no data as data: []", () => {
+  it("should not create to-many relationship with links-only and no data", () => {
     const result = deserialize(respToManyNoDataLinks);
     deepStrictEqual(result, expectedToManyNoDataLinks);
   });
