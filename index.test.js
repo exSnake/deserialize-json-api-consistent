@@ -33,7 +33,7 @@ const resp = {
           },
         ],
       },
-      locations: {
+      authors: {
         data: [{ id: 1, type: "location" }],
       },
       director: {
@@ -88,7 +88,7 @@ const expectedResponse = {
     meta: { saved: false },
     name: "test movie",
     year: 2014,
-    locations: [{ id: 1, name: "LA", type: "location" }],
+    authors: [{ id: 1, name: "LA", type: "location" }],
     director: { id: 1, type: "person", name: "Steven" },
     actors: [
       { id: 1, type: "actor", name: "John", age: 80 },
@@ -138,7 +138,7 @@ const respWithSeparators = {
           },
         ],
       },
-      locations: {
+      authors: {
         data: [{ id: 1, type: "location" }],
       },
       director: {
@@ -188,7 +188,7 @@ const expectedRespWithSeparators = {
     meta: { saved: false },
     firstName: "Foo",
     lastName: "Bar",
-    locations: [{ id: 1, name: "LA", type: "location" }],
+    authors: [{ id: 1, name: "LA", type: "location" }],
     director: { id: 1, type: "person" },
     actors: [
       { id: 1, type: "actor", name: "John", age: 80, isSuperHero: true },
@@ -360,63 +360,155 @@ const expectedComplexResponse = {
 
 const respMetaOnly = {
   data: {
-    type: "locations",
+    type: "authors",
     id: "332",
     attributes: { denominazione: "SWEET TIME" },
     relationships: {
-      slots: {
+      comments: {
         links: {
-          related: "http://localhost:771/api/v1/locations/332/slots",
-          self: "http://localhost:771/api/v1/locations/332/relationships/slots",
+          related: "/authors/332/comments",
+          self: "/authors/332/relationships/comments",
         },
         meta: { count: 3 },
       },
     },
     links: {
-      self: "http://localhost:771/api/v1/locations/332",
+      self: "/authors/332",
     },
   },
 };
 
 const expectedMetaOnly = {
   data: {
-    type: "locations",
+    type: "authors",
     id: "332",
     denominazione: "SWEET TIME",
-    links: { self: "http://localhost:771/api/v1/locations/332" },
-  },
-  meta: {
-    relationships: {
-      slots: { count: 3 },
+    links: { self: "/authors/332" },
+    comments: {
+      meta: { count: 3 },
     },
   },
 };
 
+const respArrayMetaOnly = {
+  data: [
+    {
+      type: "authors",
+      id: "332",
+      attributes: { denominazione: "SWEET TIME" },
+      relationships: {
+        comments: {
+          links: {
+            related: "/authors/332/comments",
+            self: "/authors/332/relationships/comments",
+          },
+          meta: { count: 3 },
+        },
+      },
+      links: {
+        self: "/authors/332",
+      },
+    },
+    {
+      type: "authors",
+      id: "333",
+      attributes: { denominazione: "SWEET TIME 2" },
+      relationships: {
+        comments: {
+          links: {
+            related: "/authors/333/comments",
+            self: "/authors/333/relationships/comments",
+          },
+          meta: { count: 2 },
+        },
+      },
+    },
+  ],
+};
+
+const expectedArrayMetaOnly = {
+  data: [
+    {
+      type: "authors",
+      id: "332",
+      denominazione: "SWEET TIME",
+      links: { self: "/authors/332" },
+      comments: {
+        meta: { count: 3 },
+      },
+    },
+    {
+      type: "authors",
+      id: "333",
+      denominazione: "SWEET TIME 2",
+      links: { self: "/authors/333" },
+      comments: {
+        meta: { count: 2 },
+      },
+    },
+  ],
+};
+
+// Custom relationship meta key fixtures
+const expectedMetaOnlyCustomKey = {
+  data: {
+    type: "authors",
+    id: "332",
+    denominazione: "SWEET TIME",
+    links: { self: "/authors/332" },
+    comments: {
+      _meta: { count: 3 },
+    },
+  },
+};
+
+const expectedArrayMetaOnlyCustomKey = {
+  data: [
+    {
+      type: "authors",
+      id: "332",
+      denominazione: "SWEET TIME",
+      links: { self: "/authors/332" },
+      comments: {
+        _meta: { count: 3 },
+      },
+    },
+    {
+      type: "authors",
+      id: "333",
+      denominazione: "SWEET TIME 2",
+      comments: {
+        _meta: { count: 2 },
+      },
+    },
+  ],
+};
+
 const respNoMetaNoData = {
   data: {
-    type: "locations",
+    type: "authors",
     id: "90",
     attributes: { denominazione: "STAZIONE DI SERVIZIO API" },
     relationships: {
-      slots: {
+      comments: {
         links: {
-          related: "http://localhost:771/api/v1/locations/90/slots",
-          self: "http://localhost:771/api/v1/locations/90/relationships/slots",
+          related: "/authors/90/comments",
+          self: "/authors/90/relationships/comments",
         },
       },
     },
     links: {
-      self: "http://localhost:771/api/v1/locations/90",
+      self: "/authors/90",
     },
   },
 };
 
 const expectedNoMetaNoData = {
   data: {
-    type: "locations",
+    type: "authors",
     id: "90",
     denominazione: "STAZIONE DI SERVIZIO API",
-    links: { self: "http://localhost:771/api/v1/locations/90" },
+    links: { self: "/authors/90" },
   },
 };
 
@@ -510,6 +602,11 @@ describe("deserialize", () => {
     deepStrictEqual(result, expectedMetaOnly);
   });
 
+  it("should allow customizing relationship meta key (single)", () => {
+    const result = deserialize(respMetaOnly, { relationshipMetaKey: "_meta" });
+    deepStrictEqual(result, expectedMetaOnlyCustomKey);
+  });
+
   it("should not create relationship when neither meta nor data (to-many)", () => {
     const result = deserialize(respNoMetaNoData);
     deepStrictEqual(result, expectedNoMetaNoData);
@@ -528,5 +625,10 @@ describe("deserialize", () => {
   it("should not create to-many relationship with links-only and no data", () => {
     const result = deserialize(respToManyNoDataLinks);
     deepStrictEqual(result, expectedToManyNoDataLinks);
+  });
+
+  it("should allow customizing relationship meta key (array)", () => {
+    const result = deserialize(respArrayMetaOnly, { relationshipMetaKey: "_meta" });
+    deepStrictEqual(result, expectedArrayMetaOnlyCustomKey);
   });
 });

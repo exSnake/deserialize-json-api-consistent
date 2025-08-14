@@ -212,6 +212,16 @@ first-name -> firstName
 first_name -> firstName
 ```
 
+#### relationshipMetaKey
+
+Customize the property name used to attach relationship-only meta (when there is no `data`). Default is `meta`.
+
+```javascript
+const result = deserialize(body, { relationshipMetaKey: "_meta" });
+// Example output
+// comments: { _meta: { count: 3 } }
+```
+
 ## Contributing
 
 1. Fork it
