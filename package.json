@@ -1,6 +1,6 @@
 {
   "name": "deserialize-json-api-consistent",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "Immutable json:api deserializer with consistent relationship wrapper",
   "repository": {
     "type": "git",
