@@ -5,18 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.0.3] - 2025-08-14
+## [3.0.4] - 2025-08-14
 
-### Fixed
-- 🐛 Move relationship meta to `meta.relationships.nomeRelazione` when no data present
-- 🐛 Fix relationship handling when no data, links, or meta are provided
-- 🐛 Preserve relationship meta in original location when data is present
-- 🐛 Don't create relationship properties when no data, meta, or links are provided
+### Added
+- 🎸 relationshipMetaKey option to customize meta property name on relationships without data
 
 ### Changed
-- 💡 Improve relationship meta handling logic
-- 💡 Update test cases to reflect original package behavior
-- 💡 Restore full compatibility with original weillandia/deserialize-json-api
+- 💡 Attach relationship-only meta directly on the relationship object (default key: `meta`)
+- 💡 Update README examples to reflect meta within relationship
+
+### Fixed
+- 🐛 Keep original behavior: do not create relationship when data/meta/links are missing
 
 ## [3.0.2] - 2025-08-14
 

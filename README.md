@@ -27,26 +27,21 @@ This fork maintains **full compatibility** with the original `weillandia/deseria
 
 ### Relationship meta handling
 
-When a relationship has only `meta` (no `data`), the meta is moved to `meta.relationships.nomeRelazione`:
+When a relationship has only `meta` (no `data`), the meta is attached directly to the relationship object (or under a custom key via `relationshipMetaKey`).
 
 ```json
 {
   "data": {
     "id": "332",
-    "type": "locations",
+    "type": "authors",
     "denominazione": "SWEET TIME"
-  },
-  "meta": {
-    "relationships": {
-      "slots": { "count": 3 }
-    }
   }
 }
+// Result excerpt
+// "comments": { "meta": { "count": 3 } }
 ```
 
 When a relationship has no `data`, no `meta`, and no `links`, it is not created at all (maintaining original package behavior).
-
-This preserves relationship metadata while maintaining full compatibility with the original package.
 
 ## Usage
 
@@ -177,15 +172,7 @@ deserializedData == {
 
 - to-many with only meta (no data, no links):
 ```json
-// Meta is moved to meta.relationships.actors
-{
-  "data": { "id": "1", "type": "movie" },
-  "meta": {
-    "relationships": {
-      "actors": { "count": 3 }
-    }
-  }
-}
+"actors": { "meta": { "count": 3 } }
 ```
 
 - to-many with no data, links, or meta:
