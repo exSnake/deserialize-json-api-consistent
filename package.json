@@ -1,23 +1,27 @@
 {
-  "name": "deserialize-json-api",
-  "version": "2.0.0",
-  "description": "Immutable json:api deserializer",
+  "name": "deserialize-json-api-consistent",
+  "version": "3.0.1",
+  "description": "Immutable json:api deserializer with consistent relationship wrapper",
   "repository": {
     "type": "git",
-    "url": "https://github.com/weilandia/deserialize-json-api"
+    "url": "https://github.com/exsnake/deserialize-json-api-consistent"
   },
-  "author": "weilandia",
+  "author": "exsnake",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
     "test": "mocha index.test.js"
   },
-  "keywords": ["json-api", "deserializer", "api"],
+  "keywords": [
+    "json-api",
+    "deserializer",
+    "api"
+  ],
   "bugs": {
-    "url": "https://github.com/weilandia/deserialize-json-api/issues"
+    "url": "https://github.com/exsnake/deserialize-json-api-consistent/issues"
   },
-  "homepage": "https://github.com/weilandia/deserialize-json-api#readme",
+  "homepage": "https://github.com/exsnake/deserialize-json-api-consistent#readme",
   "devDependencies": {
-    "mocha": "^9.0.0"
+    "mocha": "^11.7.1"
   }
 }

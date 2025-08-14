@@ -47,39 +47,86 @@ const findIncluded = (included, type, id) => {
 const deserializeResource = (resource, included, transformFunc) => {
   if (!resource) return null;
 
-  const { id, type, attributes = {}, relationships = {}, links, meta } = resource;
+  const { id, type, attributes = {}, relationships = {}, links, meta, ...rest } = resource;
 
   const deserialized = {
     id,
     type,
     ...transformKeys(attributes, transformFunc),
     links,
-    meta,
+    meta: transformKeys(meta, transformFunc),
+    ...transformKeys(rest, transformFunc)
+  };
+
+  const isProbablyToMany = (relationshipKey) => {
+    // Naive heuristic: plural keys likely represent to-many relationships
+    return /s$/i.test(relationshipKey);
   };
 
   Object.keys(relationships).forEach(key => {
-    const relationship = relationships[key].data;
-    if (Array.isArray(relationship)) {
-      deserialized[transformFunc ? transformFunc(key) : key] = relationship.map(rel => {
+    const relationshipContainer = relationships[key] || {};
+    const transformedKey = transformFunc ? transformFunc(key) : key;
+    const relationshipData = relationshipContainer.data;
+    const relationshipLinks = relationshipContainer.links;
+    const relationshipMeta = transformKeys(relationshipContainer.meta, transformFunc);
+
+    // No data provided: use wrapper with appropriate empty state
+    if (relationshipData === undefined) {
+      const defaultData = (!relationshipLinks && !relationshipMeta)
+        ? []
+        : (isProbablyToMany(key) ? [] : null);
+      deserialized[transformedKey] = {
+        data: defaultData,
+        links: relationshipLinks,
+        meta: relationshipMeta,
+      };
+      return;
+    }
+
+    // to-many relationship
+    if (Array.isArray(relationshipData)) {
+      const mapped = relationshipData.map(rel => {
         const includedResource = findIncluded(included, rel.type, rel.id);
+        const item = deserializeResource(includedResource, included, transformFunc) || {};
         return {
-          ...deserializeResource(includedResource, included, transformFunc),
+          ...item,
           id: rel.id,
           type: rel.type,
           links: rel.links,
-          meta: rel.meta,
+          meta: transformKeys(rel.meta, transformFunc),
         };
       });
-    } else {
-      const includedResource = findIncluded(included, relationship.type, relationship.id);
-      deserialized[transformFunc ? transformFunc(key) : key] = {
-        ...deserializeResource(includedResource, included, transformFunc),
-        id: relationship.id,
-        type: relationship.type,
-        links: relationship.links,
-        meta: relationship.meta,
+      deserialized[transformedKey] = {
+        data: mapped,
+        links: relationshipLinks,
+        meta: relationshipMeta,
       };
+      return;
     }
+
+    // to-one relationship (object or null)
+    if (relationshipData === null) {
+      deserialized[transformedKey] = {
+        data: null,
+        links: relationshipLinks,
+        meta: relationshipMeta,
+      };
+      return;
+    }
+
+    const includedResource = findIncluded(included, relationshipData.type, relationshipData.id);
+    const item = deserializeResource(includedResource, included, transformFunc) || {};
+    deserialized[transformedKey] = {
+      data: {
+        ...item,
+        id: relationshipData.id,
+        type: relationshipData.type,
+        links: relationshipData.links,
+        meta: transformKeys(relationshipData.meta, transformFunc),
+      },
+      links: relationshipLinks,
+      meta: relationshipMeta,
+    };
   });
 
   return deserialized;
