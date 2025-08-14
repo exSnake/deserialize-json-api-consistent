@@ -77,7 +77,7 @@ const deserializeResource = (
     // If no data is provided, and there is meta, attach meta directly on the relationship; otherwise skip
     if (relationship === undefined) {
       const transformedKey = transformFunc ? transformFunc(key) : key;
-      if (relationshipContainer && relationshipContainer.meta) {
+      if (relationshipContainer?.meta) {
         deserialized[transformedKey] = {
           [relationshipMetaKey]: transformKeys(
             relationshipContainer.meta,
@@ -161,7 +161,7 @@ const deserialize = (response, options = {}) => {
 
   const transformFunc =
     options.transformKeys === "camelCase" ? camelCase : null;
-  const relationshipMetaKey = options.relationshipMetaKey || 'meta';
+  const relationshipMetaKey = options.relationshipMetaKey || "meta";
 
   const { included, ...rest } = response;
   let data;
@@ -170,7 +170,12 @@ const deserialize = (response, options = {}) => {
     data = {
       ...transformKeys(rest, transformFunc),
       data: response.data.map((resource) =>
-        deserializeResource(resource, included, transformFunc, relationshipMetaKey)
+        deserializeResource(
+          resource,
+          included,
+          transformFunc,
+          relationshipMetaKey
+        )
       ),
     };
   } else {

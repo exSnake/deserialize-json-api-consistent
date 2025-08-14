@@ -422,6 +422,9 @@ const respArrayMetaOnly = {
           meta: { count: 2 },
         },
       },
+      links: {
+        self: "/authors/333",
+      }
     },
   ],
 };
@@ -477,6 +480,7 @@ const expectedArrayMetaOnlyCustomKey = {
       type: "authors",
       id: "333",
       denominazione: "SWEET TIME 2",
+      links: { self: "/authors/333" },
       comments: {
         _meta: { count: 2 },
       },
@@ -630,5 +634,97 @@ describe("deserialize", () => {
   it("should allow customizing relationship meta key (array)", () => {
     const result = deserialize(respArrayMetaOnly, { relationshipMetaKey: "_meta" });
     deepStrictEqual(result, expectedArrayMetaOnlyCustomKey);
+  });
+
+  it("should handle array resources with meta-only and links-only relationships", () => {
+    const respauthorsMetaAndLinks = {
+      data: [
+        {
+          type: "authors",
+          id: "316",
+          attributes: {
+            name: "Dante Alighieri",
+            city: "Florence",
+            state: "Tuscany",
+          },
+          relationships: {
+            comments: {
+              links: {
+                related: "/authors/316/comments",
+                self: "/authors/316/relationships/comments",
+              },
+              meta: { count: 0 },
+            },
+            authorComments: {
+              links: {
+                related:
+                  "/authors/316/author-comments",
+                self:
+                  "/authors/316/relationships/author-comments",
+              },
+            },
+          },
+          links: { self: "/authors/316" },
+        },
+        {
+          type: "authors",
+          id: "39",
+          attributes: {
+            name: "Khalil Gibran",
+            city: "Beirut",
+            state: "Lebanon",
+          },
+          relationships: {
+            comments: {
+              links: {
+                related: "/authors/39/comments",
+                self: "/authors/39/relationships/comments",
+              },
+              meta: { count: 2 },
+            },
+            authorComments: {
+              links: {
+                related:
+                  "/authors/39/author-comments",
+                self:
+                  "/authors/39/relationships/author-comments",
+              },
+            },
+          },
+          links: { self: "/authors/39" },
+        },
+      ],
+    };
+
+    const expectedauthorsMetaAndLinks = {
+      data: [
+        {
+          type: "authors",
+          id: "316",
+          name: "Dante Alighieri",
+          city: "Florence",
+          state: "Tuscany",
+          links: { self: "/authors/316" },
+          comments: { meta: { count: 0 } },
+        },
+        {
+          type: "authors",
+          id: "39",
+          name: "Khalil Gibran",
+          city: "Beirut",
+          state: "Lebanon",
+          links: { self: "/authors/39" },
+          comments: { meta: { count: 2 } },
+        },
+      ],
+    };
+
+    const result = deserialize(respauthorsMetaAndLinks);
+    deepStrictEqual(result, expectedauthorsMetaAndLinks);
+  });
+
+  it("should handle array of resources with meta", () => {
+    const result = deserialize(respArrayMetaOnly);
+    deepStrictEqual(result, expectedArrayMetaOnly);
   });
 });
