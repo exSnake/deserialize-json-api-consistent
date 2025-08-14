@@ -16,21 +16,34 @@ npm install deserialize-json-api-consistent
 yarn add deserialize-json-api-consistent
 ```
 
-## Breaking changes in v3
+## Compatibility
 
-This fork introduces a consistent relationship wrapper and therefore a major version bump.
+This fork maintains full compatibility with the original `weillandia/deserialize-json-api` package while adding enhanced relationship meta handling.
 
-- Relationships are always objects with the shape `{ data, meta?, links? }`.
-  - to-many: `data` is an array
-  - to-one: `data` is an object or `null`
-- When `data` is omitted by the server but `meta` or `links` exist, we still return the wrapper with:
-  - to-many: `data: []`
-  - to-one: `data: null`
-- When neither `meta` nor `links` nor `data` are provided by the server:
-  - to-many: `data: []`
-  - to-one: `data: null`
+- Relationships maintain their original structure (flat objects, not wrapped)
+- Resource-level fields remain "flat" (`id`, `type`, attributes, `links`, `meta`)
+- Enhanced meta handling for relationships without data
 
-Resource-level fields remain “flat” (`id`, `type`, attributes, `links`, `meta`). Only relationships are wrapped.
+### Relationship meta handling
+
+When a relationship has only `meta` (no `data`), the meta is moved to `meta.relationships.nomeRelazione`:
+
+```json
+{
+  "data": {
+    "id": "332",
+    "type": "locations",
+    "denominazione": "SWEET TIME"
+  },
+  "meta": {
+    "relationships": {
+      "slots": { "count": 3 }
+    }
+  }
+}
+```
+
+This preserves relationship metadata while maintaining a clean data structure.
 
 ## Usage
 
@@ -124,55 +137,58 @@ deserializedData == {
     meta: { saved: false },
     name: "test movie",
     year: 2014,
-    locations: { data: [{ id: 1, name: "LA", type: "location" }] },
-    director: { data: { id: 3, type: "person", name: "Steven" } },
-    actors: {
-      data: [
-        { id: 1, type: "person", name: "John", age: 80 },
-        { id: 2, type: "person", name: "Jenn", age: 40 },
-      ],
-    },
-    awards: {
-      data: [
-        {
-          id: 4,
-          type: "award",
-          links: { self: "/awards/1", related: "/awards/1/movie" },
-          meta: { verified: false },
-          category: "Best director",
-        },
-      ],
-    },
+    locations: [{ id: 1, name: "LA", type: "location" }],
+    director: { id: 3, type: "person", name: "Steven" },
+    actors: [
+      { id: 1, type: "person", name: "John", age: 80 },
+      { id: 2, type: "person", name: "Jenn", age: 40 },
+    ],
+    awards: [
+      {
+        id: 4,
+        type: "award",
+        links: { self: "/awards/1", related: "/awards/1/movie" },
+        meta: { verified: false },
+        category: "Best director",
+      },
+    ],
   },
   meta: { copyright: "Copyright 2015 Example Corp." },
   errors: [{ title: "Error!" }],
 };
 
-### Relationship wrapper shape
+### Relationship examples
 
-- to-many with only meta:
+- to-many with data:
 ```json
-"actors": {
-  "links": { "related": "/movies/1/actors", "self": "/movies/1/relationships/actors" },
-  "meta": { "count": 3 },
-  "data": []
+"actors": [
+  { "id": 1, "type": "person", "name": "John", "age": 80 },
+  { "id": 2, "type": "person", "name": "Jenn", "age": 40 }
+]
+```
+
+- to-one with data:
+```json
+"director": { "id": 3, "type": "person", "name": "Steven" }
+```
+
+- to-many with only meta (no data, no links):
+```json
+// Meta is moved to meta.relationships.actors
+{
+  "data": { "id": "1", "type": "movie" },
+  "meta": {
+    "relationships": {
+      "actors": { "count": 3 }
+    }
+  }
 }
 ```
 
-- to-many with links only and no data:
+- to-many with no data, links, or meta:
 ```json
-"actors": {
-  "links": { "related": "/movies/1/actors" },
-  "data": []
-}
-```
-
-- to-one with links only and no data:
-```json
-"director": {
-  "links": { "related": "/movies/1/director" },
-  "data": null
-}
+// Relationship is not created (empty array)
+"actors": []
 ```
 ```
 

@@ -39,7 +39,6 @@ const resp = {
       director: {
         data: { id: 1, type: "person" },
       },
-      studio: {},
     },
     links: {
       self: "/movies/1",
@@ -89,26 +88,21 @@ const expectedResponse = {
     meta: { saved: false },
     name: "test movie",
     year: 2014,
-    locations: { data: [{ id: 1, name: "LA", type: "location" }] },
-    director: { data: { id: 1, type: "person", name: "Steven" } },
-    actors: {
-      data: [
-        { id: 1, type: "actor", name: "John", age: 80 },
-        { id: 2, type: "actor", name: "Jenn", age: 40 },
-      ],
-    },
-    awards: {
-      data: [
-        {
-          id: 4,
-          type: "award",
-          links: { self: "/awards/1", related: "/awards/1/movie" },
-          meta: { verified: false },
-          category: "Best director",
-        },
-      ],
-    },
-    studio: { data: [] },
+    locations: [{ id: 1, name: "LA", type: "location" }],
+    director: { id: 1, type: "person", name: "Steven" },
+    actors: [
+      { id: 1, type: "actor", name: "John", age: 80 },
+      { id: 2, type: "actor", name: "Jenn", age: 40 },
+    ],
+    awards: [
+      {
+        id: 4,
+        type: "award",
+        links: { self: "/awards/1", related: "/awards/1/movie" },
+        meta: { verified: false },
+        category: "Best director",
+      },
+    ],
   },
   meta: { copyright: "Copyright 2015 Example Corp." },
   errors: [{ title: "Error!" }],
@@ -194,25 +188,21 @@ const expectedRespWithSeparators = {
     meta: { saved: false },
     firstName: "Foo",
     lastName: "Bar",
-    locations: { data: [{ id: 1, name: "LA", type: "location" }] },
-    director: { data: { id: 1, type: "person" } },
-    actors: {
-      data: [
-        { id: 1, type: "actor", name: "John", age: 80, isSuperHero: true },
-        { id: 2, type: "actor", name: "Jenn", age: 40, isSuperHero: false },
-      ],
-    },
-    awards: {
-      data: [
-        {
-          id: 4,
-          type: "award",
-          links: { self: "/awards/1", related: "/awards/1/movie" },
-          meta: { verified: false },
-          category: "Best director",
-        },
-      ],
-    },
+    locations: [{ id: 1, name: "LA", type: "location" }],
+    director: { id: 1, type: "person" },
+    actors: [
+      { id: 1, type: "actor", name: "John", age: 80, isSuperHero: true },
+      { id: 2, type: "actor", name: "Jenn", age: 40, isSuperHero: false },
+    ],
+    awards: [
+      {
+        id: 4,
+        type: "award",
+        links: { self: "/awards/1", related: "/awards/1/movie" },
+        meta: { verified: false },
+        category: "Best director",
+      },
+    ],
   },
   meta: { copyright: "Copyright 2015 Example Corp." },
   errors: [{ title: "Error!" }],
@@ -222,135 +212,6 @@ const nullResp = {
   data: null,
 };
 
-// Derived fixtures to simplify adding tests without touching the describe block
-const { data: baseData, ...restResp } = resp;
-const arrayResp = { data: [baseData, baseData, baseData], ...restResp };
-
-const { data: expectedData, ...expectedRest } = expectedResponse;
-const expectedArrayResponse = {
-  data: [expectedData, expectedData, expectedData],
-  ...expectedRest,
-};
-
-// Relationship-specific fixtures
-const respMetaOnly = {
-  data: {
-    type: "movies",
-    id: "1",
-    attributes: { name: "Test Movie" },
-    relationships: {
-      actors: {
-        links: {
-          related: "/movies/1/actors",
-          self: "/movies/1/relationships/actors",
-        },
-        meta: { count: 3 },
-      },
-    },
-    links: { self: "/movies/1" },
-  },
-};
-
-const expectedMetaOnly = {
-  data: {
-    type: "movies",
-    id: "1",
-    name: "Test Movie",
-    links: { self: "/movies/1" },
-    actors: {
-      links: {
-        related: "/movies/1/actors",
-        self: "/movies/1/relationships/actors",
-      },
-      meta: { count: 3 },
-      data: [],
-    },
-  },
-};
-
-const respNoMetaNoData = {
-  data: {
-    type: "movies",
-    id: "1",
-    attributes: { name: "Test Movie" },
-    relationships: {
-      actors: {
-        links: {
-          related: "/movies/1/actors",
-          self: "/movies/1/relationships/actors",
-        },
-      },
-    },
-    links: { self: "/movies/1" },
-  },
-};
-
-const expectedNoMetaNoData = {
-  data: {
-    type: "movies",
-    id: "1",
-    name: "Test Movie",
-    links: { self: "/movies/1" },
-    actors: {
-      data: [],
-      links: {
-        related: "/movies/1/actors",
-        self: "/movies/1/relationships/actors",
-      },
-    },
-  },
-};
-
-const respToOne = {
-  data: {
-    type: "movies",
-    id: "1",
-    relationships: { director: { data: { type: "people", id: "10" } } },
-  },
-  included: [{ type: "people", id: "10", attributes: { name: "A" } }],
-};
-
-const expectedToOne = {
-  data: {
-    type: "movies",
-    id: "1",
-    director: { data: { type: "people", id: "10", name: "A" } },
-  },
-};
-
-const respToOneNoDataLinks = {
-  data: {
-    type: "movies",
-    id: "1",
-    relationships: { director: { links: { related: "/movies/1/director" } } },
-  },
-};
-
-const expectedToOneNoDataLinks = {
-  data: {
-    type: "movies",
-    id: "1",
-    director: { data: null, links: { related: "/movies/1/director" } },
-  },
-};
-
-const respToManyNoDataLinks = {
-  data: {
-    type: "movies",
-    id: "1",
-    relationships: { actors: { links: { related: "/movies/1/actors" } } },
-  },
-};
-
-const expectedToManyNoDataLinks = {
-  data: {
-    type: "movies",
-    id: "1",
-    actors: { data: [], links: { related: "/movies/1/actors" } },
-  },
-};
-
-// Additional edge cases
 const complexResponse = {
   data: {
     type: "posts",
@@ -448,44 +309,167 @@ const expectedComplexResponse = {
   data: {
     type: "posts",
     id: "2291",
-    user: { data: { type: "users", id: "39" } },
-    comments: {
-      data: [
-        {
+    user: {
+      type: "users",
+      id: "39",
+    },
+    comments: [
+      {
+        type: "comments",
+        id: "7989",
+        user: {
+          type: "users",
+          id: "39",
+        },
+        pre: {
+          type: "comments",
+          id: "7986",
+          user: {
+            type: "users",
+            id: "39",
+          },
+        },
+      },
+      {
+        type: "comments",
+        id: "7990",
+        user: {
+          type: "users",
+          id: "100",
+        },
+        pre: {
           type: "comments",
           id: "7989",
-          user: { data: { type: "users", id: "39" } },
+          user: {
+            type: "users",
+            id: "39",
+          },
           pre: {
-            data: {
-              type: "comments",
-              id: "7986",
-              user: { data: { type: "users", id: "39" } },
+            type: "comments",
+            id: "7986",
+            user: {
+              type: "users",
+              id: "39",
             },
           },
         },
-        {
-          type: "comments",
-          id: "7990",
-          user: { data: { type: "users", id: "100" } },
-          pre: {
-            data: {
-              type: "comments",
-              id: "7989",
-              user: { data: { type: "users", id: "39" } },
-              pre: {
-                data: {
-                  type: "comments",
-                  id: "7986",
-                  user: { data: { type: "users", id: "39" } },
-                },
-              },
-            },
-          },
+      },
+    ],
+  },
+};
+
+const respMetaOnly = {
+  data: {
+    type: "locations",
+    id: "332",
+    attributes: { denominazione: "SWEET TIME" },
+    relationships: {
+      slots: {
+        links: {
+          related: "http://localhost:771/api/v1/locations/332/slots",
+          self: "http://localhost:771/api/v1/locations/332/relationships/slots",
         },
-      ],
+        meta: { count: 3 },
+      },
+    },
+    links: {
+      self: "http://localhost:771/api/v1/locations/332",
     },
   },
 };
+
+const expectedMetaOnly = {
+  data: {
+    type: "locations",
+    id: "332",
+    denominazione: "SWEET TIME",
+    links: { self: "http://localhost:771/api/v1/locations/332" },
+  },
+  meta: {
+    relationships: {
+      slots: { count: 3 },
+    },
+  },
+};
+
+const respNoMetaNoData = {
+  data: {
+    type: "locations",
+    id: "90",
+    attributes: { denominazione: "STAZIONE DI SERVIZIO API" },
+    relationships: {
+      slots: {
+        links: {
+          related: "http://localhost:771/api/v1/locations/90/slots",
+          self: "http://localhost:771/api/v1/locations/90/relationships/slots",
+        },
+      },
+    },
+    links: {
+      self: "http://localhost:771/api/v1/locations/90",
+    },
+  },
+};
+
+const expectedNoMetaNoData = {
+  data: {
+    type: "locations",
+    id: "90",
+    denominazione: "STAZIONE DI SERVIZIO API",
+    links: { self: "http://localhost:771/api/v1/locations/90" },
+    slots: [],
+  },
+};
+
+const respToOne = {
+  data: {
+    type: "movies",
+    id: "1",
+    relationships: { director: { data: { type: "people", id: "10" } } },
+  },
+  included: [{ type: "people", id: "10", attributes: { name: "A" } }],
+};
+
+const expectedToOne = {
+  data: {
+    type: "movies",
+    id: "1",
+    director: { type: "people", id: "10", name: "A" },
+  },
+};
+
+const respToOneNoDataLinks = {
+  data: {
+    type: "movies",
+    id: "1",
+    relationships: { director: { links: { related: "/movies/1/director" } } },
+  },
+};
+
+const expectedToOneNoDataLinks = {
+  data: {
+    type: "movies",
+    id: "1",
+    director: [],
+  },
+};
+
+const respToManyNoDataLinks = {
+  data: {
+    type: "movies",
+    id: "1",
+    relationships: { actors: { links: { related: "/movies/1/actors" } } },
+  },
+};
+
+const expectedToManyNoDataLinks = {
+  data: {
+    type: "movies",
+    id: "1",
+    actors: [],
+  },
+};
+
 describe("deserialize", () => {
   it("should deserialize a single resource", () => {
     const result = deserialize(resp);
@@ -498,7 +482,17 @@ describe("deserialize", () => {
   });
 
   it("should deserialize an array of resources", () => {
+    const { data, ...rest } = resp;
+    const arrayResp = { data: [data, data, data], ...rest };
+
     const result = deserialize(arrayResp);
+
+    const { data: expectedData, ...expectedRest } = expectedResponse;
+    const expectedArrayResponse = {
+      data: [expectedData, expectedData, expectedData],
+      ...expectedRest,
+    };
+
     deepStrictEqual(result, expectedArrayResponse);
   });
 
@@ -519,7 +513,7 @@ describe("deserialize", () => {
     deepStrictEqual(result, expectedMetaOnly);
   });
 
-  it("should return wrapper with empty array when relationship has neither meta nor data (to-many)", () => {
+  it("should return empty array when relationship has neither meta nor data (to-many)", () => {
     const result = deserialize(respNoMetaNoData);
     deepStrictEqual(result, expectedNoMetaNoData);
   });
